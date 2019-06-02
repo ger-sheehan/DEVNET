@@ -1,0 +1,62 @@
+
+    - name: CREATE VLAN
+      nxos_vlan:
+        vlan_id: "{{ item.vlan_id }}"
+        provider: "{{ nxos_provider }}"
+      with_items: "{{ vlans }}"
+
+
+    - name: ASSIGN VLAN TO PORT
+      nxos_l2_interface:
+        name: "{{ item.interface }}"
+        mode: access
+        access_vlan: "{{ item.vlan }}"
+        provider: "{{ nxos_provider }}"
+      with_items: "{{ switchports }}"
+
+    - name: CREATE VLAN AND ASSOCIATE THE VLAN TO L2 VNI
+      nxos_vlan:
+        vlan_id: "{{ item.vlan_id }}"
+        mapped_vni: "{{ item.vni }}"
+        provider: "{{ nxos_provider }}"
+      with_items: "{{ vlans }}"
+
+
+    - name: CONFIGURE VTEP TO VNI
+      nxos_vxlan_vtep_vni:
+        interface: "{{ nve }}"
+        vni: "{{ item.vni }}"
+        ingress_replication: bgp
+        provider: "{{ nxos_provider }}"
+      with_items: "{{ vlans }}"
+
+    - name: CREATE SVI
+      nxos_interface:
+        interface: "{{ item.interface }}"
+        fabric_forwarding_anycast_gateway: true
+        provider: "{{ nxos_provider }}"
+      with_items: "{{ vlan_ip }}"
+
+    - name: ASIGN INTERFACE TO VRF
+      nxos_vrf_interface:
+        vrf: "{{ vrf }}"
+        interface: "{{ item.interface }}"
+        provider: "{{ nxos_provider }}"
+      with_items: "{{ vlan_ip }}"
+
+
+    - name: ASSIGN IP ADDRESS TO SVI
+      nxos_l3_interface:
+        name: "{{ item.interface }}"
+        ipv4: "{{ item.ipv4 }}"
+        provider: "{{ nxos_provider }}"
+      with_items:
+      - "{{ vlan_ip }}"
+
+    - name: EVPN CONFIG
+      nxos_evpn_vni:
+        vni: "{{ item.vni }}"
+        route_distinguisher: auto
+        route_target_both: auto
+        provider: "{{ nxos_provider }}"
+      with_items: "{{ vlans }}"

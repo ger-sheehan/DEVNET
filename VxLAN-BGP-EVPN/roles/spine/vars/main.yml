@@ -1,0 +1,31 @@
+---
+
+  nxos_provider:
+    username: "{{ un }}"
+    password: "{{ pwd }}"
+    transport: nxapi
+    use_ssl: True 
+    validate_certs: False
+    host: "{{ inventory_hostname }}"
+
+
+  features:
+  - { feature: bgp }
+  - { feature: ospf }
+  - { feature: tacacs }
+  - { feature: interface-vlan }
+
+  default_vrf_interfaces:
+  - { interface: Ethernet1/1 }
+  - { interface: Ethernet1/2 }
+  - { interface: Loopback0 }
+
+  asn: '65001'
+
+  address_families:
+  - { afi: ipv4, safi: unicast }
+  - { afi: l2vpn, safi: evpn }
+
+  bgp_neighbors:
+  - { remote_as: '65001', neighbor: 3.3.3.3, update_source: Loopback0 }
+  - { remote_as: '65001', neighbor: 4.4.4.4, update_source: Loopback0 }

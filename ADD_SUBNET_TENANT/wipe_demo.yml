@@ -1,0 +1,66 @@
+---
+
+- hosts: spine
+  vars:
+    nxos_provider:
+      username: "{{ un }}"
+      password: "{{ pwd }}"
+      transport: nxapi
+      host: "{{ inventory_hostname }}"
+
+  tasks:
+    - name: WIPE DEMO
+      nxos_feature:
+        feature: "{{item.feature }}"
+        provider: "{{ nxos_provider }}"
+        state: disabled
+      with_items:
+        - { feature: bgp }
+        - { feature: ospf }
+        #- { feature: "nv overlay" }
+
+- hosts: leaf
+
+  vars:
+    nxos_provider:
+      username: "{{ un }}"
+      password: "{{ pwd }}"
+      transport: nxapi
+      host: "{{ inventory_hostname }}" 
+
+  tasks:
+    - name: WIPE DEMO
+      nxos_feature:
+        feature: "{{item.feature }}"
+        provider: "{{ nxos_provider }}"
+        state: disabled
+      with_items:
+        - { feature: bgp }
+        - { feature: ospf }
+        #- { feature: "nv overlay" }
+        #- { feature: "vn_seg_vlan"}
+
+    - name: REMOVE VRF
+      nxos_vrf:
+        vrf: "{{ vrf }}"
+        state: absent
+        provider: "{{ nxos_provider }}"
+
+    - name: REMOVE NVE
+      nxos_interface: "nve1"
+        state: absent
+        provider: "{{ nxos_provider }}"
+
+      - name: REMOVE NVE
+      nxos_interface: "vlan1001"
+        state: absent
+        provider: "{{ nxos_provider }}"
+
+
+
+
+#- hosts: all
+  #tasks:
+  #  - name: save config
+  #    nxos_save_config: host={{ inventory_hostname }}
+

@@ -1,0 +1,33 @@
+---
+
+  nxos_provider:
+    username: "{{ un }}"
+    password: "{{ pwd }}"
+    transport: nxapi
+    use_ssl: True 
+    validate_certs: False
+    host: "{{ inventory_hostname }}"
+
+
+  vrf: tenant-1
+
+  vlan_id: 1001
+  vni: 10001
+
+  nve: nve1
+
+  svi: Vlan1001
+
+  vlans:
+  - { vlan_id: 12, vni: 10012 }
+
+  vlan_ip:
+  - { interface: Vlan12, ipv4: 12.12.12.1/24 }
+
+  switchports:
+  - { interface: Eth1/6, vlan: 12 }
+
+  asn: 65001
+
+  address_families:
+  - { afi: ipv4, safi: unicast }
